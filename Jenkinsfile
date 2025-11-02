@@ -22,9 +22,18 @@ pipeline {
                     // Run unit tests and generate JaCoCo coverage report
                     bat "mvn test jacoco:report"
 
-                    // Check coverage thresholds (equivalent to jacocoTestCoverageVerification)
+                    // Check coverage thresholds (fail build if below limits)
                     bat "mvn jacoco:check"
                 }
+
+                // Publish JaCoCo report in Jenkins UI
+                jacoco(
+                    execPattern: '**/target/jacoco.exec',
+                    classPattern: '**/target/classes',
+                    sourcePattern: '**/src/main/java',
+                    inclusionPattern: '**/*.class',
+                    exclusionPattern: '**/test/**'
+                )
             }
         }
     }
