@@ -11,7 +11,7 @@ pipeline {
         stage("Build & Test") {
             steps {
                 dir('calculator') {
-                    // Clean, compile, run tests, generate JaCoCo report, and enforce coverage rules
+                    // Clean, compile, run tests, generate JaCoCo report, enforce coverage
                     bat "mvn clean verify"
                 }
             }
@@ -20,9 +20,17 @@ pipeline {
 
     post {
         always {
-            echo "Archiving JaCoCo HTML reports..."
-            // Archive the report so it can be viewed in Jenkins
-            archiveArtifacts artifacts: 'calculator/target/site/jacoco/**', fingerprint: true
+            echo "Publishing JaCoCo HTML report..."
+            publishHTML(target: [
+                allowMissing: false,
+                alwaysLinkToLastBuild: true,
+                keepAll: true,
+                reportDir: 'calculator/target/site/jacoco',
+                reportFiles: 'index.html',
+                reportName: 'JaCoCo Coverage'
+            ])
+
+            echo "Cleaning workspace..."
             cleanWs()
         }
     }
