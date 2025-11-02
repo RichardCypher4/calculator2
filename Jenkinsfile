@@ -8,39 +8,21 @@ pipeline {
             }
         }
 
-        stage("Compile") {
+        stage("Build & Test") {
             steps {
                 dir('calculator') {
-                    bat "mvn clean compile"
+                    // Clean, compile, run tests, generate JaCoCo report, and enforce coverage rules
+                    bat "mvn clean verify"
                 }
-            }
-        }
-
-        stage("Unit Test & Code Coverage") {
-            steps {
-                dir('calculator') {
-                    // Run unit tests and generate JaCoCo coverage report
-                    bat "mvn test jacoco:report"
-
-                    // Check coverage thresholds (fail build if below limits)
-                    bat "mvn jacoco:check"
-                }
-
-                // Publish JaCoCo report in Jenkins UI
-                jacoco(
-                    execPattern: '**/target/jacoco.exec',
-                    classPattern: '**/target/classes',
-                    sourcePattern: '**/src/main/java',
-                    inclusionPattern: '**/*.class',
-                    exclusionPattern: '**/test/**'
-                )
             }
         }
     }
 
     post {
         always {
-            echo "Cleaning up workspace..."
+            echo "Archiving JaCoCo HTML reports..."
+            // Archive the report so it can be viewed in Jenkins
+            archiveArtifacts artifacts: 'calculator/target/site/jacoco/**', fingerprint: true
             cleanWs()
         }
     }
