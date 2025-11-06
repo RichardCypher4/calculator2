@@ -27,13 +27,23 @@ pipeline {
                     def matcher = reportFile =~ /<counter type="INSTRUCTION" missed="(\\d+)" covered="(\\d+)"/
                     def totalMissed = 0
                     def totalCovered = 0
+
                     matcher.each { m ->
                         totalMissed += m[1].toInteger()
                         totalCovered += m[2].toInteger()
                     }
-                    def coverage = (totalCovered * 100) / (totalCovered + totalMissed)
+
+                    def total = totalCovered + totalMissed
+                    def coverage = total > 0 ? (totalCovered * 100.0 / total) : 0
+
                     env.COVERAGE_PERCENT = String.format('%.2f', coverage)
                     echo "✅ Code Coverage: ${env.COVERAGE_PERCENT}%"
+
+                    // Optional coverage quality gate
+                    def threshold = 70.0
+                    if (coverage < threshold) {
+                        error "❌ Code coverage (${coverage}%) is below the required threshold (${threshold}%)"
+                    }
                 }
             }
         }
