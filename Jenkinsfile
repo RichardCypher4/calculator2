@@ -35,8 +35,9 @@ pipeline {
 
                     def total = totalCovered + totalMissed
                     def coverage = total > 0 ? (totalCovered * 100.0 / total) : 0
-                    env.COVERAGE_PERCENT = String.format('%.2f', coverage.toDouble())
+                    env.COVERAGE_PERCENT = String.format('%d', coverage)
                     echo "✅ Code Coverage: ${env.COVERAGE_PERCENT}%"
+
 
 
                     // Optional coverage quality gate
